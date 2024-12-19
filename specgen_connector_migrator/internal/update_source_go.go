@@ -212,9 +212,6 @@ func (u UpdateSourceGo) maybeUpdateSource(filename string) (bool, error) {
 		modifiedSource = strings.Replace(modifiedSource, modifiedSource[parametersMethodStart:parametersMethodEnd], "", 1)
 	}
 
-	// 1
-	// 2
-
 	// Add TODO comment for Configure method
 	if configureMethod != nil {
 		start := fset.Position(configureMethod.Pos()).Offset
