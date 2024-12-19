@@ -27,23 +27,23 @@ import (
 	"strings"
 )
 
-type UpdateSourceGo struct{}
+type UpdateDestinationGo struct{}
 
-func (u UpdateSourceGo) Migrate(workingDir string) error {
-	// Find Go source files in the working directory
-	files, err := filepath.Glob(filepath.Join(workingDir, "*source.go"))
+func (u UpdateDestinationGo) Migrate(workingDir string) error {
+	// Find Go destination files in the working directory
+	files, err := filepath.Glob(filepath.Join(workingDir, "*destination.go"))
 	if err != nil {
 		return fmt.Errorf("failed to find Go files: %w", err)
 	}
 
 	for _, filename := range files {
-		updated, err := u.maybeUpdateSource(filename)
+		updated, err := u.maybeUpdateDestination(filename)
 		if err != nil {
 			return fmt.Errorf("failed to update file %v: %w", filename, err)
 		}
 
 		if updated {
-			fmt.Printf("updated source file %s\n", filename)
+			fmt.Printf("updated destination file %s\n", filename)
 			break
 		}
 	}
@@ -51,8 +51,8 @@ func (u UpdateSourceGo) Migrate(workingDir string) error {
 	return nil
 }
 
-// ImplementsSource checks if a given type specification implements the sdk.Source interface
-func (u UpdateSourceGo) implementsSource(file *ast.File, n ast.Node) bool {
+// ImplementsDestination checks if a given type specification implements the sdk.Destination interface
+func (u UpdateDestinationGo) implementsDestination(file *ast.File, n ast.Node) bool {
 	typeSpec, ok := n.(*ast.TypeSpec)
 	if !ok {
 		return false
@@ -64,11 +64,10 @@ func (u UpdateSourceGo) implementsSource(file *ast.File, n ast.Node) bool {
 		return false
 	}
 
-	// Required methods for sdk.Source interface
+	// Required methods for sdk.Destination interface
 	requiredMethods := map[string]bool{
 		"Open":     false,
-		"Read":     false,
-		"Ack":      false,
+		"Write":    false,
 		"Teardown": false,
 	}
 
@@ -113,7 +112,7 @@ func (u UpdateSourceGo) implementsSource(file *ast.File, n ast.Node) bool {
 	return true
 }
 
-func (u UpdateSourceGo) getMethod(file *ast.File, structNode ast.Node, methodName string) (*ast.FuncDecl, error) {
+func (u UpdateDestinationGo) getMethod(file *ast.File, structNode ast.Node, methodName string) (*ast.FuncDecl, error) {
 	// Get the struct name
 	typeSpec, ok := structNode.(*ast.TypeSpec)
 	if !ok {
@@ -154,14 +153,14 @@ func (u UpdateSourceGo) getMethod(file *ast.File, structNode ast.Node, methodNam
 	return nil, fmt.Errorf("method %s not found on struct %s", methodName, structName)
 }
 
-func (u UpdateSourceGo) maybeUpdateSource(filename string) (bool, error) {
+func (u UpdateDestinationGo) maybeUpdateDestination(filename string) (bool, error) {
 	// Read the file
 	content, err := os.ReadFile(filename)
 	if err != nil {
 		return false, fmt.Errorf("error reading file %s: %w", filename, err)
 	}
 
-	// Create a file set and parse the source
+	// Create a file set and parse the destination
 	fset := token.NewFileSet()
 	file, err := parser.ParseFile(fset, filename, content, parser.ParseComments)
 	if err != nil {
@@ -175,7 +174,7 @@ func (u UpdateSourceGo) maybeUpdateSource(filename string) (bool, error) {
 
 	// Inspect the AST to find methods
 	ast.Inspect(file, func(n ast.Node) bool {
-		if !u.implementsSource(file, n) {
+		if !u.implementsDestination(file, n) {
 			return true
 		}
 
@@ -197,19 +196,19 @@ func (u UpdateSourceGo) maybeUpdateSource(filename string) (bool, error) {
 		return false, nil
 	}
 
-	// Create a new buffer to write modified source
+	// Create a new buffer to write modified destination
 	var newContent bytes.Buffer
 	if err := format.Node(&newContent, fset, file); err != nil {
 		return false, fmt.Errorf("error formatting AST: %w", err)
 	}
-	modifiedSource := newContent.String()
+	modifiedDestination := newContent.String()
 
 	// Remove Parameters method if it exists
 	var parametersMethodStart, parametersMethodEnd int
 	if parametersMethod != nil {
 		parametersMethodStart = fset.Position(parametersMethod.Pos()).Offset
 		parametersMethodEnd = fset.Position(parametersMethod.End()).Offset
-		modifiedSource = strings.Replace(modifiedSource, modifiedSource[parametersMethodStart:parametersMethodEnd], "", 1)
+		modifiedDestination = strings.Replace(modifiedDestination, modifiedDestination[parametersMethodStart:parametersMethodEnd], "", 1)
 	}
 
 	// Add TODO comment for Configure method
@@ -222,22 +221,22 @@ func (u UpdateSourceGo) maybeUpdateSource(filename string) (bool, error) {
 
 		todoComment := "\n// TODO: This method needs to be removed. If there's any custom logic in Configure(),\n" +
 			"// it needs to be moved to the configuration struct in the Validate() method."
-		modifiedSource = modifiedSource[:start] + todoComment + modifiedSource[start:]
+		modifiedDestination = modifiedDestination[:start] + todoComment + modifiedDestination[start:]
 	}
 
 	// Add Config method before the last closing brace
 	configMethodTemplate := fmt.Sprintf(
 		`
 
-func (s *%s) Config() sdk.SourceConfig {
-	return &s.config
+func (d *%s) Config() sdk.DestinationConfig {
+	return &d.config
 }
 `, structName)
 
-	modifiedSource = modifiedSource[:structEnd] + configMethodTemplate + modifiedSource[structEnd:]
+	modifiedDestination = modifiedDestination[:structEnd] + configMethodTemplate + modifiedDestination[structEnd:]
 
 	// Write modified content back to file
-	if err := os.WriteFile(filename, []byte(modifiedSource), 0644); err != nil {
+	if err := os.WriteFile(filename, []byte(modifiedDestination), 0644); err != nil {
 		return false, fmt.Errorf("error writing modified file %s: %w", filename, err)
 	}
 

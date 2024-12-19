@@ -19,6 +19,7 @@ func main() {
 		internal.ToolsGo{},
 		internal.UpgradeSDK{},
 		internal.UpdateSourceGo{},
+		internal.UpdateDestinationGo{},
 		internal.WriteConnectorYaml{},
 		internal.MakefileMigrator{},
 		internal.ConnectorGoMigrator{},
