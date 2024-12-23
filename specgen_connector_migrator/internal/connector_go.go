@@ -39,7 +39,7 @@ func (a ConnectorGoMigrator) Migrate(workingDir string) error {
 	)
 
 	// import embed
-	updatedConnectorGo = strings.ReplaceAll(connectorGo,
+	updatedConnectorGo = strings.ReplaceAll(updatedConnectorGo,
 		`import (
 	sdk "github.com/conduitio/conduit-connector-sdk"
 )`,
@@ -54,7 +54,7 @@ var specs string
 
 `)
 	// import embed
-	updatedConnectorGo = strings.ReplaceAll(connectorGo,
+	updatedConnectorGo = strings.ReplaceAll(updatedConnectorGo,
 		`import sdk "github.com/conduitio/conduit-connector-sdk"`,
 		`import (
 	_ "embed"
