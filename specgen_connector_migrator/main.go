@@ -19,11 +19,11 @@ func main() {
 		internal.CheckoutNewBranch{},
 		internal.ToolsGo{},
 		internal.UpgradeSDK{},
+		internal.ConnectorGoMigrator{},
 		internal.UpdateSourceGo{},
 		internal.UpdateDestinationGo{},
 		internal.WriteConnectorYaml{},
 		internal.MakefileMigrator{},
-		internal.ConnectorGoMigrator{},
 		internal.DeletedParamGen{},
 	}
 
