@@ -27,6 +27,8 @@ func main() {
 		internal.DeletedParamGen{},
 	}
 
+	fmt.Printf("Migrating %v\n", workingDir)
+	
 	for _, m := range migrators {
 		fmt.Printf("Running %T\n\n", m)
 		err := m.Migrate(workingDir)
