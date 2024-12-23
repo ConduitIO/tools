@@ -26,7 +26,7 @@ type UpgradeSDK struct {
 
 func (u UpgradeSDK) Migrate(workingDir string) error {
 	module := "github.com/conduitio/conduit-connector-sdk"
-	version := "1cfa153"
+	version := "main"
 
 	// Run go get command
 	err := runCommand(workingDir, "go", "get", fmt.Sprintf("%s@%s", module, version))

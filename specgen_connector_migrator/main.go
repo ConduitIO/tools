@@ -16,6 +16,7 @@ func main() {
 	}
 
 	migrators := []internal.Migrator{
+		internal.CheckoutNewBranch{},
 		internal.ToolsGo{},
 		internal.UpgradeSDK{},
 		internal.UpdateSourceGo{},
@@ -27,11 +28,11 @@ func main() {
 	}
 
 	for _, m := range migrators {
-		fmt.Printf("Running %T\n", m)
+		fmt.Printf("Running %T\n\n", m)
 		err := m.Migrate(workingDir)
 		if err != nil {
 			log.Fatalf("%T failed: %v", m, err)
 		}
-		fmt.Printf("Done with %T\n", m)
+		fmt.Printf("\nDone with %T\n-----------\n", m)
 	}
 }

@@ -53,6 +53,19 @@ func (a ConnectorGoMigrator) Migrate(workingDir string) error {
 var specs string
 
 `)
+	// import embed
+	updatedConnectorGo = strings.ReplaceAll(connectorGo,
+		`import sdk "github.com/conduitio/conduit-connector-sdk"`,
+		`import (
+	_ "embed"
+
+	sdk "github.com/conduitio/conduit-connector-sdk"
+)
+
+//go:embed connector.yaml
+var specs string
+
+`)
 
 	// Compile the regex pattern
 	regex := regexp.MustCompile(`NewSpecification:.*`)
