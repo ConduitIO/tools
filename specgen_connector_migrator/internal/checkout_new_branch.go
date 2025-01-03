@@ -40,7 +40,7 @@ func (c CheckoutNewBranch) Migrate(workingDir string) error {
 	}
 
 	// Create new branch
-	cmd = exec.Command("git", "checkout", "-b", "haris/specgen")
+	cmd = exec.Command("git", "checkout", "-b", "migrate-to-specgen")
 	cmd.Dir = workingDir
 	if out, err := cmd.CombinedOutput(); err != nil {
 		return fmt.Errorf("failed to create branch: %v, output: %s", err, out)
