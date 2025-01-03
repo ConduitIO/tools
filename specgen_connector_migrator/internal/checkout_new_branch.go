@@ -46,18 +46,6 @@ func (c CheckoutNewBranch) Migrate(workingDir string) error {
 		return fmt.Errorf("failed to create branch: %v, output: %s", err, out)
 	}
 
-	// Execute 'git add .'
-	addCmd := exec.Command("git", "add", ".")
-	if err := addCmd.Run(); err != nil {
-		return fmt.Errorf("failed executing git add: %v\n", err)
-	}
-
-	// Execute 'git commit -am "Generate connector.yaml"'
-	commitCmd := exec.Command("git", "commit", "-am", "Generate connector.yaml")
-	if output, err := commitCmd.CombinedOutput(); err != nil {
-		return fmt.Errorf("failed executing git commit: %v\nOutput: %s\n", err, output)
-	}
-
 	fmt.Println("Successfully added and committed changes")
 	return nil
 }
