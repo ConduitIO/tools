@@ -31,14 +31,17 @@ func (m MakefileMigrator) Migrate(workingDir string) error {
 	}
 
 	connectorName := filepath.Base(workingDir)
-	old := fmt.Sprintf(`build:
+	oldBuild := fmt.Sprintf(`build:
 	go build -ldflags "-X 'github.com/conduitio/%s.version=${VERSION}'" -o %s cmd/connector/main.go`, connectorName, connectorName)
+	oldBuildLabs := fmt.Sprintf(`build:
+	go build -ldflags "-X 'github.com/conduitio-labs/%s.version=${VERSION}'" -o %s cmd/connector/main.go`, connectorName, connectorName)
 
 	newBuild := fmt.Sprintf(`build:
 	sed -i '/specification:/,/version:/ s/version: .*/version: '"${VERSION}"'/' connector.yaml
 	go build -o %s cmd/connector/main.go`, connectorName)
 	// Replace the build target
-	makefile = strings.ReplaceAll(makefile, old, newBuild)
+	makefile = strings.ReplaceAll(makefile, oldBuild, newBuild)
+	makefile = strings.ReplaceAll(makefile, oldBuildLabs, newBuild)
 
 	// Write back to file
 	err = os.WriteFile(makefilePath, []byte(makefile), 0644)

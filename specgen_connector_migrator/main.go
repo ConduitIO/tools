@@ -4,9 +4,24 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"reflect"
 
 	"github.com/conduitio-labs/connector-migrator/internal"
 )
+
+var allMigrators = []internal.Migrator{
+	internal.CheckoutNewBranch{},
+	internal.ToolsGo{},
+	internal.UpgradeSDK{},
+	internal.ConnectorGoMigrator{},
+	internal.UpdateSourceGo{},
+	internal.UpdateDestinationGo{},
+	internal.WriteConnectorYaml{},
+	internal.MakefileMigrator{},
+	internal.DeleteParamGen{},
+	internal.DeleteSpecGo{},
+	internal.WorkflowValidateGeneratedFiles{},
+}
 
 func main() {
 	// Working directory can be passed as an argument or use current directory
@@ -14,17 +29,21 @@ func main() {
 	if len(os.Args) > 1 {
 		workingDir = os.Args[1]
 	}
+	migrator := ""
+	if len(os.Args) > 2 {
+		migrator = os.Args[2]
+	}
 
-	migrators := []internal.Migrator{
-		internal.CheckoutNewBranch{},
-		internal.ToolsGo{},
-		internal.UpgradeSDK{},
-		internal.ConnectorGoMigrator{},
-		internal.UpdateSourceGo{},
-		internal.UpdateDestinationGo{},
-		internal.WriteConnectorYaml{},
-		internal.MakefileMigrator{},
-		internal.DeletedParamGen{},
+	var migrators []internal.Migrator
+	if migrator == "" {
+		migrators = allMigrators
+	} else {
+		for _, m := range allMigrators {
+			if reflect.TypeOf(m).Name() == migrator {
+				migrators = []internal.Migrator{m}
+				break
+			}
+		}
 	}
 
 	fmt.Printf("Migrating %v\n", workingDir)

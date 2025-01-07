@@ -22,10 +22,10 @@ import (
 	"strings"
 )
 
-type DeletedParamGen struct {
+type DeleteParamGen struct {
 }
 
-func (d DeletedParamGen) Migrate(workingDir string) error {
+func (d DeleteParamGen) Migrate(workingDir string) error {
 	// Walk through the directory recursively
 	err := filepath.Walk(workingDir, func(path string, info os.FileInfo, err error) error {
 		// Check if there was an error accessing the path

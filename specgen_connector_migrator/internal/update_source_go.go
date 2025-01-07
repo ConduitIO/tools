@@ -22,6 +22,7 @@ import (
 	"go/format"
 	"go/parser"
 	"go/token"
+	"io/fs"
 	"os"
 	"path/filepath"
 	"strings"
@@ -30,10 +31,19 @@ import (
 type UpdateSourceGo struct{}
 
 func (u UpdateSourceGo) Migrate(workingDir string) error {
-	// Find Go source files in the working directory
-	files, err := filepath.Glob(filepath.Join(workingDir, "*source.go"))
+	// Find Go destination files in the working directory
+	var files []string
+	err := filepath.WalkDir(workingDir, func(path string, d fs.DirEntry, err error) error {
+		if err != nil {
+			return err
+		}
+		if d.Name() == "source.go" {
+			files = append(files, path)
+		}
+		return nil
+	})
 	if err != nil {
-		return fmt.Errorf("failed to find Go files: %w", err)
+		return fmt.Errorf("error walking dir: %w", err)
 	}
 
 	for _, filename := range files {
