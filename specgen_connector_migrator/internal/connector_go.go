@@ -61,6 +61,8 @@ func (a ConnectorGoMigrator) Migrate(workingDir string) error {
 		`//go:embed connector.yaml
 var specs string
 
+var version = "(devel)"
+
 var Connector = sdk.Connector{`,
 	)
 
@@ -68,7 +70,7 @@ var Connector = sdk.Connector{`,
 	regex := regexp.MustCompile(`NewSpecification:.*`)
 
 	// Replace the line with the new specification
-	updatedConnectorGo = regex.ReplaceAllString(updatedConnectorGo, "NewSpecification: sdk.YAMLSpecification(specs),")
+	updatedConnectorGo = regex.ReplaceAllString(updatedConnectorGo, "NewSpecification: sdk.YAMLSpecification(specs, version),")
 
 	// Write back to file
 	err = os.WriteFile(connectorGoPath, []byte(updatedConnectorGo), 0644)

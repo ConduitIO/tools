@@ -14,11 +14,10 @@ The migration is done by _migrators_: one for each step in the migration, like:
 - creating a new branch
 - updating the SDK
 - migrating the source connector
-- migrating `Makefile`
 - etc.
 
 If only one migrator needs to be run, then use this:
 
 ```shell
-go run main.go /home/haris/projects/conduitio-labs/conduit-connector-oracle MakefileMigrator
+go run main.go /home/haris/projects/conduitio-labs/conduit-connector-oracle UpdateSourceGo
 ```

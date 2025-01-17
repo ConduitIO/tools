@@ -17,10 +17,10 @@ var allMigrators = []internal.Migrator{
 	internal.UpdateSourceGo{},
 	internal.UpdateDestinationGo{},
 	internal.WriteConnectorYaml{},
-	internal.MakefileMigrator{},
 	internal.DeleteParamGen{},
 	internal.DeleteSpecGo{},
 	internal.WorkflowValidateGeneratedFiles{},
+	internal.GoReleaserMigrator{},
 }
 
 func main() {
