@@ -19,7 +19,7 @@ var allMigrators = []internal.Migrator{
 	internal.WriteConnectorYaml{},
 	internal.DeleteParamGen{},
 	internal.DeleteSpecGo{},
-	internal.WorkflowValidateGeneratedFiles{},
+	internal.WorkflowRelease{},
 	internal.GoReleaserMigrator{},
 }
 

@@ -21,16 +21,16 @@ import (
 	"path/filepath"
 )
 
-//go:embed validate-generated-files.yaml
+//go:embed release.yaml
 var workflowFiles embed.FS
 
-type WorkflowValidateGeneratedFiles struct{}
+type WorkflowRelease struct{}
 
-func (w WorkflowValidateGeneratedFiles) Migrate(workingDir string) error {
+func (w WorkflowRelease) Migrate(workingDir string) error {
 	// Check for both possible file extensions
 	possiblePaths := []string{
-		filepath.Join(workingDir, ".github", "workflows", "validate-generated-files.yml"),
-		filepath.Join(workingDir, ".github", "workflows", "validate-generated-files.yaml"),
+		filepath.Join(workingDir, ".github", "workflows", "release.yml"),
+		filepath.Join(workingDir, ".github", "workflows", "release.yaml"),
 	}
 
 	// Check if either file exists
@@ -43,7 +43,7 @@ func (w WorkflowValidateGeneratedFiles) Migrate(workingDir string) error {
 	}
 
 	// Read the embedded workflow file
-	workflowContent, err := workflowFiles.ReadFile("validate-generated-files.yaml")
+	workflowContent, err := workflowFiles.ReadFile("release.yaml")
 	if err != nil {
 		return fmt.Errorf("failed to read workflow file: %w", err)
 	}
@@ -55,7 +55,7 @@ func (w WorkflowValidateGeneratedFiles) Migrate(workingDir string) error {
 	}
 
 	// Write the new file
-	targetPath := filepath.Join(targetDir, "validate-generated-files.yaml")
+	targetPath := filepath.Join(targetDir, "release.yaml")
 	if err := os.WriteFile(targetPath, workflowContent, 0644); err != nil {
 		return fmt.Errorf("failed to write workflow file: %w", err)
 	}
