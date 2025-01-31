@@ -21,6 +21,7 @@ var allMigrators = []internal.Migrator{
 	internal.DeleteSpecGo{},
 	internal.WorkflowRelease{},
 	internal.GoReleaserMigrator{},
+	internal.MakefileMigrator{},
 }
 
 func main() {

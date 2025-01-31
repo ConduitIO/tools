@@ -31,7 +31,7 @@ func (t ToolsGo) Migrate(workingDir string) error {
 	updatedToolsGo := strings.ReplaceAll(
 		toolsGo,
 		"_ \"github.com/conduitio/conduit-commons/paramgen\"",
-		"_ \"github.com/conduitio/conduit-connector-sdk/specgen\"",
+		"_ \"github.com/conduitio/conduit-connector-sdk/conn-sdk-cli\"",
 	)
 
 	err = os.WriteFile(toolsGoPath, []byte(updatedToolsGo), 0644)

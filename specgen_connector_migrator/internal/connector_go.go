@@ -35,7 +35,7 @@ func (a ConnectorGoMigrator) Migrate(workingDir string) error {
 		`// limitations under the License.`,
 		`// limitations under the License.
 
-//go:generate specgen`,
+//go:generate conn-sdk-cli specgen`,
 	)
 
 	// import embed
