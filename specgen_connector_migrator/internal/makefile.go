@@ -36,12 +36,12 @@ func (m MakefileMigrator) Migrate(workingDir string) error {
 	// Define the old and new content with proper tab indentation
 	oldContent := `.PHONY: generate
 generate:
-   go generate ./...`
+	go generate ./...`
 
 	newContent := `.PHONY: generate
 generate:
-   go generate ./...
-   conn-sdk-cli readmegen -w`
+	go generate ./...
+	conn-sdk-cli readmegen -w`
 
 	// Perform the replacement
 	updatedContent := strings.ReplaceAll(string(content), oldContent, newContent)

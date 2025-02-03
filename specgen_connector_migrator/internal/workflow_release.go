@@ -55,16 +55,8 @@ func (w WorkflowRelease) Migrate(workingDir string) error {
 	}
 
 	// Write the new file
-	targetPath := filepath.Join(targetDir, "release.yaml")
-	if err := os.WriteFile(targetPath, workflowContent, 0644); err != nil {
+	if err := os.WriteFile(existingPath, workflowContent, 0644); err != nil {
 		return fmt.Errorf("failed to write workflow file: %w", err)
-	}
-
-	// Remove the old file if it's different from the target
-	if existingPath != "" && existingPath != targetPath {
-		if err := os.Remove(existingPath); err != nil {
-			return fmt.Errorf("failed to remove old workflow file: %w", err)
-		}
 	}
 
 	return nil
