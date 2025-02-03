@@ -22,6 +22,7 @@ var allMigrators = []internal.Migrator{
 	internal.WorkflowRelease{},
 	internal.GoReleaserMigrator{},
 	internal.MakefileMigrator{},
+	internal.ScriptsMigrator{},
 }
 
 func main() {
