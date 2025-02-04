@@ -6,7 +6,7 @@ Connector SDK v0.12 and before to v0.13 and using `specgen`.
 ## Example usage
 
 ```shell
-go run main.go /home/haris/projects/conduitio-labs/conduit-connector-oracle
+go run main.go <path/to/connector>
 ```
 
 The migration is done by _migrators_: one for each step in the migration, like:
@@ -19,5 +19,5 @@ The migration is done by _migrators_: one for each step in the migration, like:
 If only one migrator needs to be run, then use this:
 
 ```shell
-go run main.go /home/haris/projects/conduitio-labs/conduit-connector-oracle UpdateSourceGo
+go run main.go <path/to/connector> UpdateSourceGo
 ```
