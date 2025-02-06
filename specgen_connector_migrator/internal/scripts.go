@@ -15,83 +15,43 @@
 package internal
 
 import (
+	"embed"
 	"fmt"
-	"io"
-	"io/fs"
 	"os"
 	"path/filepath"
 )
 
+//go:embed scripts/*
+var scripts embed.FS
+
 type ScriptsMigrator struct{}
 
 func (s ScriptsMigrator) Migrate(workingDir string) error {
-	scriptsDir := "internal/scripts"
-
-	// Check if source directory exists
-	if _, err := os.Stat(scriptsDir); os.IsNotExist(err) {
-		return fmt.Errorf("scripts directory does not exist: %w", err)
-	}
-
 	// Create the destination directory if it doesn't exist
 	destDir := filepath.Join(workingDir, "scripts")
 	if err := os.MkdirAll(destDir, 0755); err != nil {
 		return fmt.Errorf("failed to create destination directory: %w", err)
 	}
 
-	// Walk through the scripts directory
-	return filepath.Walk(scriptsDir, func(path string, info fs.FileInfo, err error) error {
+	srcDir := "scripts"
+	entries, err := scripts.ReadDir(srcDir)
+	if err != nil {
+		return fmt.Errorf("failed to read scripts directory: %w", err)
+	}
+
+	for _, entry := range entries {
+		srcPath := filepath.Join(srcDir, entry.Name())
+		content, err := scripts.ReadFile(srcPath)
 		if err != nil {
-			return fmt.Errorf("error accessing path %q: %w", path, err)
+			return fmt.Errorf("failed to read file %s: %w", srcPath, err)
 		}
 
-		// Calculate relative path to maintain directory structure
-		relPath, err := filepath.Rel(scriptsDir, path)
+		destPath := filepath.Join(destDir, entry.Name())
+		err = os.WriteFile(destPath, content, 0755)
 		if err != nil {
-			return fmt.Errorf("failed to get relative path: %w", err)
+			return fmt.Errorf("failed to write file %s: %w", destPath, err)
 		}
-
-		// Skip the root directory itself
-		if relPath == "." {
-			return nil
-		}
-
-		destPath := filepath.Join(destDir, relPath)
-
-		if info.IsDir() {
-			// Create directory in destination
-			return os.MkdirAll(destPath, 0755)
-		}
-
-		// Copy file contents
-		return copyFile(path, destPath)
-	})
-}
-
-// Helper function to copy individual files
-func copyFile(src, dst string) error {
-	sourceFile, err := os.Open(src)
-	if err != nil {
-		return fmt.Errorf("failed to open source file: %w", err)
-	}
-	defer sourceFile.Close()
-
-	// Create destination file
-	destFile, err := os.Create(dst)
-	if err != nil {
-		return fmt.Errorf("failed to create destination file: %w", err)
-	}
-	defer destFile.Close()
-
-	// Copy the contents
-	if _, err := io.Copy(destFile, sourceFile); err != nil {
-		return fmt.Errorf("failed to copy file contents: %w", err)
 	}
 
-	// Copy file mode
-	sourceInfo, err := os.Stat(src)
-	if err != nil {
-		return fmt.Errorf("failed to get source file info: %w", err)
-	}
-
-	return os.Chmod(dst, sourceInfo.Mode())
+	return nil
 }

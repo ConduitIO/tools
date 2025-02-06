@@ -10,7 +10,6 @@ import (
 )
 
 var allMigrators = []internal.Migrator{
-	internal.CheckoutNewBranch{},
 	internal.ToolsGo{},
 	internal.UpgradeSDK{},
 	internal.ConnectorGoMigrator{},
