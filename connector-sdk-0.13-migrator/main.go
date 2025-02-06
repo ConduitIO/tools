@@ -6,11 +6,10 @@ import (
 	"os"
 	"reflect"
 
-	"github.com/conduitio-labs/connector-migrator/internal"
+	"github.com/conduitio/tools/connector-sdk-0.13-migrator/internal"
 )
 
 var allMigrators = []internal.Migrator{
-	internal.CheckoutNewBranch{},
 	internal.ToolsGo{},
 	internal.UpgradeSDK{},
 	internal.ConnectorGoMigrator{},

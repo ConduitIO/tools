@@ -1,7 +1,7 @@
-# specgen_connector_migrator
+# Connector SDK 0.13 migrator
 
-`specgen_connector_migrator` is a tool that migrates connectors written with
-Connector SDK v0.12 and before to v0.13 and using `specgen`.
+`connector-sdk-0.13-migrator` is a tool that migrates connectors written with
+Connector SDK `v0.12` and before to `v0.13` and using `conn-sdk-cli`.
 
 ## Example usage
 
@@ -11,7 +11,6 @@ go run main.go <path/to/connector>
 
 The migration is done by _migrators_: one for each step in the migration, like:
 
-- creating a new branch
 - updating the SDK
 - migrating the source connector
 - etc.
