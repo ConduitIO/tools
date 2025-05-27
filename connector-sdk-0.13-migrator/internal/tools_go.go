@@ -15,7 +15,11 @@
 package internal
 
 import (
+	"errors"
+	"fmt"
 	"os"
+	"os/exec"
+	"path/filepath"
 	"strings"
 )
 
@@ -24,6 +28,12 @@ type ToolsGo struct {
 
 func (t ToolsGo) Migrate(workingDir string) error {
 	toolsGoPath, toolsGo, err := readFile(workingDir, "tools.go")
+	var hasToolsDir bool
+	if errors.Is(err, os.ErrNotExist) {
+		toolsGoPath, toolsGo, err = readFile(workingDir, "tools/go.mod")
+		hasToolsDir = true
+	}
+
 	if err != nil {
 		return err
 	}
@@ -37,6 +47,48 @@ func (t ToolsGo) Migrate(workingDir string) error {
 	err = os.WriteFile(toolsGoPath, []byte(updatedToolsGo), 0644)
 	if err != nil {
 		return err
+	}
+	if hasToolsDir {
+		err := runGoModTidy(filepath.Join(workingDir, "tools"))
+		if err != nil {
+			return fmt.Errorf("failed to run go mod tidy in tools directory: %w", err)
+		}
+	}
+
+	return nil
+}
+
+func runGoModTidy(dir string) error {
+	// Convert to absolute path
+	absDir, err := filepath.Abs(dir)
+	if err != nil {
+		return fmt.Errorf("failed to get absolute path: %w", err)
+	}
+
+	// Check if directory exists
+	if _, err := os.Stat(absDir); os.IsNotExist(err) {
+		return fmt.Errorf("directory does not exist: %s", absDir)
+	}
+
+	// Check if go.mod exists in the directory
+	goModPath := filepath.Join(absDir, "go.mod")
+	if _, err := os.Stat(goModPath); os.IsNotExist(err) {
+		return fmt.Errorf("go.mod not found in directory: %s", absDir)
+	}
+
+	// Create the command
+	cmd := exec.Command("go", "mod", "tidy")
+	cmd.Dir = absDir
+
+	// Set up output capture
+	output, err := cmd.CombinedOutput()
+	if err != nil {
+		return fmt.Errorf("go mod tidy failed: %w\nOutput: %s", err, string(output))
+	}
+
+	fmt.Printf("Successfully ran 'go mod tidy' in %s\n", absDir)
+	if len(output) > 0 {
+		fmt.Printf("Output: %s\n", string(output))
 	}
 
 	return nil
