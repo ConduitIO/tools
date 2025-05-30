@@ -28,10 +28,8 @@ type ToolsGo struct {
 
 func (t ToolsGo) Migrate(workingDir string) error {
 	toolsGoPath, toolsGo, err := readFile(workingDir, "tools.go")
-	var hasToolsDir bool
 	if errors.Is(err, os.ErrNotExist) {
-		toolsGoPath, toolsGo, err = readFile(workingDir, "tools/go.mod")
-		hasToolsDir = true
+		return t.migrateToolsDir(workingDir)
 	}
 
 	if err != nil {
@@ -46,13 +44,31 @@ func (t ToolsGo) Migrate(workingDir string) error {
 
 	err = os.WriteFile(toolsGoPath, []byte(updatedToolsGo), 0644)
 	if err != nil {
-		return err
+		return fmt.Errorf("failed writing new contents of tools.go: %w", err)
 	}
-	if hasToolsDir {
-		err := runGoModTidy(filepath.Join(workingDir, "tools"))
-		if err != nil {
-			return fmt.Errorf("failed to run go mod tidy in tools directory: %w", err)
-		}
+
+	return nil
+}
+
+func (t ToolsGo) migrateToolsDir(workingDir string) error {
+	toolsGoPath, toolsGo, err := readFile(workingDir, "tools/go.mod")
+	if err != nil {
+		return fmt.Errorf("failed reading tools/go.mod: %w", err)
+	}
+	updatedGoMod := strings.ReplaceAll(
+		toolsGo,
+		"github.com/conduitio/conduit-commons/paramgen",
+		"github.com/conduitio/conduit-connector-sdk/conn-sdk-cli",
+	)
+
+	err = os.WriteFile(toolsGoPath, []byte(updatedGoMod), 0644)
+	if err != nil {
+		return fmt.Errorf("failed writing new contents of tools/go.mod: %w", err)
+	}
+
+	err = runGoModTidy(filepath.Join(workingDir, "tools"))
+	if err != nil {
+		return fmt.Errorf("failed to run go mod tidy in tools directory: %w", err)
 	}
 
 	return nil
